@@ -34,7 +34,7 @@
     }
   },
   "scripts": {
-    "phpunit": "vendor/bin/phpunit",
+    "phpunit": "XDEBUG_MODE=coverage vendor/bin/phpunit",
     "infection": "vendor/bin/infection --min-covered-msi=87 --threads=4 --show-mutations"
   }
 }
