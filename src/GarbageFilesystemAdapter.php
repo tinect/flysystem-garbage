@@ -9,8 +9,10 @@ use League\Flysystem\Config;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\StorageAttributes;
+use League\Flysystem\UnableToCopyFile;
 use League\Flysystem\UnableToGeneratePublicUrl;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use League\Flysystem\UnableToMoveFile;
 use League\Flysystem\UnableToProvideChecksum;
 use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UrlGeneration\PublicUrlGenerator;
@@ -110,7 +112,13 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
 
     public function move(string $source, string $destination, Config $config): void
     {
-        $this->adapter->move($source, $destination, $config);
+        try {
+            $this->adapter->copy($source, $destination, $config);
+
+            $this->moveFileIntoGarbage($source, true);
+        } catch (UnableToCopyFile $e) {
+            throw UnableToMoveFile::fromLocationTo($source, $destination, $e);
+        }
     }
 
     public function copy(string $source, string $destination, Config $config): void
@@ -194,7 +202,7 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
         } catch (UnableToRetrieveMetadata) {
         }
 
-        $this->move($path, $garbagePath, $config);
+        $this->adapter->move($path, $garbagePath, $config);
     }
 
     public function getGarbagePath(): string

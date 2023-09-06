@@ -16,7 +16,6 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UrlGeneration\PublicUrlGenerator;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;
-use PHPUnit\Framework\MockObject\Generator\MockClass;
 use Tinect\Flysystem\Garbage\GarbageFilesystemAdapter;
 
 class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
@@ -115,7 +114,7 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         self::assertSame('contents', $adapter->read($garbagePath2));
     }
 
-    public function test_moving_file_produces_NO_garbage_entry(): void
+    public function test_moving_file_produces_garbage_entry(): void
     {
         $adapter = $this->adapter();
 
@@ -124,7 +123,8 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
 
         $garbagePath = 'garbage/' . date('Ymd') . '/file.txt';
 
-        self::assertFalse($adapter->fileExists($garbagePath));
+        self::assertTrue($adapter->fileExists($garbagePath));
+        self::assertSame('contents', $adapter->read($garbagePath));
     }
 
     public function test_copyfileIntoGarbage_with_invalid_source_visibility_throws_error(): void
@@ -184,6 +184,18 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         $adapter->createDirectory('dir', new Config());
         $adapter->write('dir/file.txt', 'asdf', new Config());
         $adapter->deleteDirectory('dir');
+    }
+
+    public function test_move_file_results_in_copyFileIntoGarbage_with_suppressed_fileExist(): void
+    {
+        $sourceAdapter = $this->createMock(FilesystemAdapter::class);
+
+        $sourceAdapter->expects(self::exactly(3))->method('fileExists')->willReturn(true);
+
+        $adapter = new GarbageFilesystemAdapter($sourceAdapter);
+
+        $adapter->write('file.txt', 'asdf', new Config());
+        $adapter->move('file.txt', 'filea.txt', new Config());
     }
 
     public function test_multiple_times_creating_and_deleting_file_results_in_garbage_entry_with_numeric_suffix(): void

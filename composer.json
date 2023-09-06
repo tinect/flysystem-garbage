@@ -1,6 +1,6 @@
 {
   "name": "tinect/flysystem-garbage",
-  "description": "Flysystem Adapter to copy files into garbage folder when specific actions are taken",
+  "description": "Flysystem Adapter to move files into garbage folder when specific actions are taken",
   "type": "library",
   "license": "MIT",
   "authors": [
