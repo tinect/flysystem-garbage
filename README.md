@@ -14,6 +14,7 @@ composer require tinect/flysystem-garbage
 declare(strict_types=1);
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\Config;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Tinect\Flysystem\Garbage\GarbageAdapter;
 
@@ -28,8 +29,8 @@ $adapter = new GarbageAdapter(
 );
 
 //Perform your actions as usual
-$adapter->write('test.txt', 'content');
-$adapter->delete('test.txt', 'content');
+$adapter->write('test.txt', 'content', new Config());
+$adapter->delete('test.txt');
 
 //see directory "garbage"
 ```
