@@ -5,6 +5,7 @@
             "src"
         ]
     },
+    "timeout": 5,
     "mutators": {
         "@default": true
     }

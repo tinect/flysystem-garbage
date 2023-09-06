@@ -142,6 +142,19 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         $adapter->visibility($garbagePath)->visibility();
     }
 
+    public function test_file_in_garbage_has_same_visibility_as_source_file(): void
+    {
+        $sourceAdapter = new VisibilityFromConfigWhenCopyAdapter();
+        $adapter = new GarbageFilesystemAdapter($sourceAdapter);
+
+        $adapter->write('filea.txt', 'contents', new Config([Config::OPTION_VISIBILITY => 'my-visibility']));
+        $adapter->delete('filea.txt');
+
+        $garbagePath = 'garbage/' . date('Ymd') . '/filea.txt';
+
+        self::assertSame('my-visibility', $adapter->visibility($garbagePath)->visibility());
+    }
+
     /**
      * @test
      */
@@ -155,7 +168,7 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         parent::generating_a_public_url();
     }
 
-    public function test_public_url_with_adapter_without_support_interface_throws_error(): void
+    public function test_public_url_with_adapter_without_support_throws_error(): void
     {
         $sourceAdapter = new InMemoryFilesystemAdapter();
 

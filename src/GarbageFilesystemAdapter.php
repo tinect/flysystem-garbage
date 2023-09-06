@@ -193,7 +193,7 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
             $visibility = $this->adapter->visibility($path)->visibility();
 
             if (!empty($visibility)) {
-                $config->extend([Config::OPTION_VISIBILITY => $visibility]);
+                $config = $config->extend([Config::OPTION_VISIBILITY => $visibility]);
             }
         } catch (UnableToRetrieveMetadata) {
         }
