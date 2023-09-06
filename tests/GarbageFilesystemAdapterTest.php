@@ -187,6 +187,31 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         $adapter->deleteDirectory('dir');
     }
 
+    public function test_multiple_times_creating_and_deleting_file_results_in_garbage_entry_with_numeric_suffix(): void
+    {
+        $adapter = $this->adapter();
+
+        $adapter->write('file.txt', 'contents', new Config());
+        $adapter->write('file.txt', 'contents1', new Config());
+        $adapter->delete('file.txt');
+
+        $garbagePath = 'garbage/' . date('Ymd') . '/file.txt';
+
+        self::assertTrue($adapter->fileExists($garbagePath));
+        self::assertSame('contents', $adapter->read($garbagePath));
+
+        $contents = \iterator_to_array($adapter->listContents('garbage/' . date('Ymd'), false));
+
+        self::assertCount(2, $contents);
+
+        foreach ($contents as $item) {
+            self::assertInstanceOf(FileAttributes::class, $item);
+            self::assertStringStartsWith('garbage/' . date('Ymd') . '/file.txt', $item->path());
+        }
+
+        self::assertMatchesRegularExpression('/^\d+$/', \str_replace($garbagePath, '', $contents[1]->path()));
+    }
+
     /**
      * @test
      */
