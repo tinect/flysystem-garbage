@@ -115,7 +115,7 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         self::assertSame('contents', $adapter->read($garbagePath2));
     }
 
-    public function test_moving_file_produces_garbage_entry(): void
+    public function test_moving_file_produces_NO_garbage_entry(): void
     {
         $adapter = $this->adapter();
 
@@ -124,8 +124,7 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
 
         $garbagePath = 'garbage/' . date('Ymd') . '/file.txt';
 
-        self::assertTrue($adapter->fileExists($garbagePath));
-        self::assertSame('contents', $adapter->read($garbagePath));
+        self::assertFalse($adapter->fileExists($garbagePath));
     }
 
     public function test_copyfileIntoGarbage_with_invalid_source_visibility_throws_error(): void
@@ -146,7 +145,7 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
 
     public function test_file_in_garbage_has_same_visibility_as_source_file(): void
     {
-        $sourceAdapter = new VisibilityFromConfigWhenCopyAdapter();
+        $sourceAdapter = new VisibilityFromConfigWhenMoveAdapter();
         $adapter = new GarbageFilesystemAdapter($sourceAdapter);
 
         $adapter->write('filea.txt', 'contents', new Config([Config::OPTION_VISIBILITY => 'my-visibility']));

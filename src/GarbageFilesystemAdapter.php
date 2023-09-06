@@ -41,14 +41,14 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
 
     public function write(string $path, string $contents, Config $config): void
     {
-        $this->copyFileIntoGarbage($path);
+        $this->moveFileIntoGarbage($path);
 
         $this->adapter->write($path, $contents, $config);
     }
 
     public function writeStream(string $path, $contents, Config $config): void
     {
-        $this->copyFileIntoGarbage($path);
+        $this->moveFileIntoGarbage($path);
 
         $this->adapter->writeStream($path, $contents, $config);
     }
@@ -65,16 +65,12 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
 
     public function delete(string $path): void
     {
-        $this->copyFileIntoGarbage($path);
-
-        $this->adapter->delete($path);
+        $this->moveFileIntoGarbage($path);
     }
 
     public function deleteDirectory(string $path): void
     {
-        $this->copyDirectoryIntoGarbage($path);
-
-        $this->adapter->deleteDirectory($path);
+        $this->moveDirectoryIntoGarbage($path);
     }
 
     public function createDirectory(string $path, Config $config): void
@@ -114,8 +110,6 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
 
     public function move(string $source, string $destination, Config $config): void
     {
-        $this->copyFileIntoGarbage($source);
-
         $this->adapter->move($source, $destination, $config);
     }
 
@@ -163,14 +157,16 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
         }
     }
 
-    private function copyDirectoryIntoGarbage(string $path): void
+    private function moveDirectoryIntoGarbage(string $path): void
     {
         foreach ($this->getFiles($path) as $file) {
-            $this->copyFileIntoGarbage($file, true);
+            $this->moveFileIntoGarbage($file, true);
         }
+
+        $this->adapter->deleteDirectory($path);
     }
 
-    private function copyFileIntoGarbage(string $path, bool $suppressFileExistCheck = false): void
+    private function moveFileIntoGarbage(string $path, bool $suppressFileExistCheck = false): void
     {
         if (\str_starts_with($path, $this->garbagePath)) {
             return;
@@ -198,7 +194,7 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
         } catch (UnableToRetrieveMetadata) {
         }
 
-        $this->copy($path, $garbagePath, $config);
+        $this->move($path, $garbagePath, $config);
     }
 
     public function getGarbagePath(): string
