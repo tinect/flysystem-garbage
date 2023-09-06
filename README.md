@@ -7,3 +7,29 @@ This is a [Flysystem](https://github.com/thephpleague/flysystem) Adapter to move
 ```
 composer require tinect/flysystem-garbage
 ```
+
+## Usage example
+```php
+<?php
+declare(strict_types=1);
+
+use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
+use Tinect\Flysystem\Garbage\GarbageAdapter;
+
+//Initialize your adapter
+$adapter = new LocalFilesystemAdapter(
+    '/my/path/'
+);
+
+//Put your adapter into the garbageAdapter
+$adapter = new GarbageAdapter(
+    $adapter
+);
+
+//Perform your actions as usual
+$adapter->write('test.txt', 'content');
+$adapter->delete('test.txt', 'content');
+
+//see directory "garbage"
+```
