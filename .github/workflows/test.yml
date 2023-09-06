@@ -20,4 +20,11 @@ jobs:
           tools: composer:v2
       - run: composer update --no-progress
       - run: composer phpunit
+
+      - uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./clover.xml
+
       - run: composer infection
