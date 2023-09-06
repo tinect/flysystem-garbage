@@ -6,6 +6,7 @@ namespace Tinect\Flysystem\Garbage\Tests;
 use League\Flysystem\AdapterTestUtilities\FilesystemAdapterTestCase;
 use League\Flysystem\ChecksumProvider;
 use League\Flysystem\Config;
+use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\UnableToGeneratePublicUrl;
@@ -15,6 +16,7 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UrlGeneration\PublicUrlGenerator;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;
+use PHPUnit\Framework\MockObject\Generator\MockClass;
 use Tinect\Flysystem\Garbage\GarbageFilesystemAdapter;
 
 class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
@@ -153,6 +155,36 @@ class GarbageFilesystemAdapterTest extends FilesystemAdapterTestCase
         $garbagePath = 'garbage/' . date('Ymd') . '/filea.txt';
 
         self::assertSame('my-visibility', $adapter->visibility($garbagePath)->visibility());
+    }
+
+    public function test_directory_delete_results_in_listContents_with_deep(): void
+    {
+        $sourceAdapter = $this->createMock(FilesystemAdapter::class);
+        $sourceAdapter->expects(self::once())->method('listContents')->with('dir', true)
+            ->willReturn([]);
+
+        $adapter = new GarbageFilesystemAdapter($sourceAdapter);
+
+        $adapter->createDirectory('dir', new Config());
+        $adapter->deleteDirectory('dir');
+    }
+
+    public function test_directory_delete_results_in_copyFileIntoGarbage_with_suppressed_fileExist(): void
+    {
+        $sourceAdapter = $this->createMock(FilesystemAdapter::class);
+
+        $sourceAdapter->expects(self::exactly(1))->method('listContents')->with('dir', true)
+            ->willReturn([
+                new FileAttributes('dir/file.txt'),
+            ]);
+
+        $sourceAdapter->expects(self::exactly(3))->method('fileExists')->willReturn(true);
+
+        $adapter = new GarbageFilesystemAdapter($sourceAdapter);
+
+        $adapter->createDirectory('dir', new Config());
+        $adapter->write('dir/file.txt', 'asdf', new Config());
+        $adapter->deleteDirectory('dir');
     }
 
     /**
