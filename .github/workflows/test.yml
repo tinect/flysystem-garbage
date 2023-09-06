@@ -19,4 +19,5 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer:v2
       - run: composer update --no-progress
-      - run: vendor/bin/phpunit
+      - run: composer phpunit
+      - run: composer infection
