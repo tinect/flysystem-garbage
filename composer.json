@@ -14,7 +14,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "@stable",
-    "league/flysystem-adapter-test-utilities": "^3.10.0"
+    "league/flysystem-adapter-test-utilities": "^3.10.0",
+    "league/flysystem-memory": "^3.10.0"
   },
   "autoload": {
     "psr-4": {

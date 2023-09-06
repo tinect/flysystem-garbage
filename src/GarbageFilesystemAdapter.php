@@ -19,8 +19,14 @@ use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumProvider, TemporaryUrlGenerator
 {
     public function __construct(
-        private readonly FilesystemAdapter $adapter
+        private readonly FilesystemAdapter $adapter,
+        private string $garbagePath = 'garbage'
     ) {
+        if (empty($this->garbagePath)) {
+            throw new \InvalidArgumentException('Garbage path must not be empty.');
+        }
+
+        $this->garbagePath = trim($this->garbagePath, '/');
     }
 
     public function fileExists(string $path): bool
@@ -151,11 +157,9 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
 
         /** @var StorageAttributes $entry */
         foreach ($contents as $entry) {
-            if ($entry->isFile() === false) {
-                continue;
+            if ($entry->isFile()) {
+                yield $entry->path();
             }
-
-            yield $entry->path();
         }
     }
 
@@ -168,11 +172,15 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
 
     private function copyFileIntoGarbage(string $path, bool $suppressFileExistCheck = false): void
     {
+        if (\str_starts_with($path, $this->garbagePath)) {
+            return;
+        }
+
         if (!$suppressFileExistCheck && !$this->fileExists($path)) {
             return;
         }
 
-        $garbagePath = 'garbage/' . date('Ymd') . '/' . $path;
+        $garbagePath = $this->garbagePath . '/' . date('Ymd') . '/' . $path;
 
         /* There could be a file on this day */
         if ($this->fileExists($garbagePath)) {
@@ -191,5 +199,10 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
         }
 
         $this->copy($path, $garbagePath, $config);
+    }
+
+    public function getGarbagePath(): string
+    {
+        return $this->garbagePath;
     }
 }
