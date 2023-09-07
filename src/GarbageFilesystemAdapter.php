@@ -153,6 +153,9 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
         return $this->adapter->temporaryUrl($path, $expiresAt, $config);
     }
 
+    /**
+     * @return iterable<string>
+     */
     private function getFiles(string $directoryPath): iterable
     {
         $contents = $this->listContents($directoryPath, true);

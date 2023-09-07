@@ -16,7 +16,8 @@
     "phpunit/phpunit": "@stable",
     "league/flysystem-adapter-test-utilities": "^3.10.0",
     "league/flysystem-memory": "^3.10.0",
-    "infection/infection": "^0.27.0"
+    "infection/infection": "^0.27.0",
+    "phpstan/phpstan": "^1.10"
   },
   "autoload": {
     "psr-4": {
@@ -34,6 +35,7 @@
     }
   },
   "scripts": {
+    "phpstan": "vendor/bin/phpstan",
     "phpunit": "XDEBUG_MODE=coverage vendor/bin/phpunit",
     "infection": "vendor/bin/infection --min-covered-msi=100 --threads=4 --show-mutations"
   }
