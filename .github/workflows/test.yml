@@ -19,6 +19,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
+          extensions: none
       - run: composer update --no-progress
 
       - run: composer phpstan
