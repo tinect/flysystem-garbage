@@ -28,6 +28,7 @@ jobs:
       - run: composer phpunit
 
       - uses: codecov/codecov-action@v3
+        if: matrix.php == '8.1'
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
