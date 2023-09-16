@@ -19,7 +19,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-          extensions: dom, json, libxml, mbstring, xml, xmlwriter
+          extensions: dom, json, libxml, mbstring, xml, xmlwriter, :gd
           coverage: pcov
       - run: composer update --no-progress
 
