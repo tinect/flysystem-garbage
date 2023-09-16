@@ -19,7 +19,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-          extensions: none
+          extensions: dom, json, libxml, mbstring, xml, xmlwriter
+          coverage: pcov
       - run: composer update --no-progress
 
       - run: composer phpstan
