@@ -115,7 +115,9 @@ class GarbageFilesystemAdapter implements FilesystemAdapter, PublicUrlGenerator,
         try {
             $this->adapter->copy($source, $destination, $config);
 
-            $this->moveFileIntoGarbage($source, true);
+            if ($source !== $destination) {
+                $this->moveFileIntoGarbage($source, true);
+            }
         } catch (UnableToCopyFile $e) {
             throw UnableToMoveFile::fromLocationTo($source, $destination, $e);
         }
