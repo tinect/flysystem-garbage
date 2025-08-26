@@ -6,13 +6,30 @@ on:
     - cron: '10 16 * * *'
 
 jobs:
+  get-php-versions:
+    name: Get PHP versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      latest: ${{ steps.set-matrix.outputs.latest }}
+    steps:
+      - name: Fetch PHP versions
+        id: set-matrix
+        run: |
+          response=$(curl -s https://php.watch/api/v1/versions/secure)
+          versions=$(echo "$response" | jq -r '.data | [.[] | .name] | sort_by(. | split(".") | map(tonumber)) | @json')
+          latest=$(echo "$versions" | jq -r '. | last')
+          echo "matrix=$versions" >> $GITHUB_OUTPUT
+          echo "latest=$latest" >> $GITHUB_OUTPUT
+
   phpunit:
     name: PHPUnit tests on ${{ matrix.php }}
     runs-on: ubuntu-latest
     continue-on-error: false
+    needs: get-php-versions
     strategy:
       matrix:
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
+        php: ${{ fromJson(needs.get-php-versions.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -28,7 +45,7 @@ jobs:
       - run: composer phpunit
 
       - uses: codecov/codecov-action@v3
-        if: matrix.php == '8.4'
+        if: matrix.php == needs.get-php-versions.outputs.latest
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
